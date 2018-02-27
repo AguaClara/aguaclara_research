@@ -1,0 +1,10 @@
+{
+  "generator-python-lib": {
+    "projectName": "aguaclara_research",
+    "fullName": "AguaClara",
+    "email": "aguaclara@cornell.edu",
+    "githubName": "AguaClara",
+    "ciProvider": "Travis CI",
+    "version": "4.0.38"
+  }
+}
