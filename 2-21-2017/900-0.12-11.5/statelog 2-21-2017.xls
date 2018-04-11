@@ -1,0 +1,10 @@
+Day fraction since midnight on 2/21/2017	 State ID	 State name	 Rule that caused previous state to end		
+0.76088315	1	PID TIME	Operator changed the state		
+0.76505244	2	FLUSHING	Incremented		
+0.77445984	0	OFF	Operator changed the state		
+0.77447557	1	PID TIME	Operator changed the state		
+0.77864401	2	FLUSHING	Incremented		
+0.804641145	3	DATA COLLECTION	Flushed		Changed from 0.79600924
+0.81337405	2	FLUSHING	New Run		
+0.81337524	4	RINSE	Finished		
+0.83073967	0	OFF	End Experiment		

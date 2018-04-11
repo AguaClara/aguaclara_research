@@ -1,0 +1,5 @@
+Day fraction since midnight on 1/5/2017	 State ID	 State name	 Rule that caused previous state to end
+0.65325235	7	Calibrate SWaT	Operator changed the state
+0.65370939	0	OFF	Operator changed the state
+0.66170752	7	Calibrate SWaT	Operator changed the state
+0.66287158	0	OFF	Operator changed the state

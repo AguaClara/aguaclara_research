@@ -1,0 +1,7 @@
+Day fraction since midnight on 2/27/2017	 State ID	 State name	 Rule that caused previous state to end
+0.80343715	1	PID TIME	Operator changed the state
+0.80412358	0	OFF	Operator changed the state
+0.84475078	1	PID TIME	Operator changed the state
+0.85813422	0	OFF	Operator changed the state
+0.87400723	1	PID TIME	Operator changed the state
+0.87775024	0	OFF	Operator changed the state
