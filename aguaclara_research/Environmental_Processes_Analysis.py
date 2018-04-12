@@ -1,8 +1,4 @@
-from aide_design.play import *
-import scipy
-from scipy import special
-from scipy.optimize import curve_fit
-import collections
+from aguaclara_research.play import *
 
 def ftime(data_file_path,start,end):
     """ This function extracts the column of times from a ProCoDA data file.
