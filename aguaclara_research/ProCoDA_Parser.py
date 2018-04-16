@@ -98,7 +98,7 @@ def read_state(dates, state, column, units="", path=""):
             overnight = True
 
     data_agg = np.vstack(data_agg)
-    if units == !":
+    if units != "":
         return data_agg[:, 0]*u.day, data_agg[:, 1]*u(units)
     else:
         return data_agg[:, 0]*u.day, data_agg[:, 1]
