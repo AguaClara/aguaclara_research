@@ -45,7 +45,7 @@ setup(
     author='AguaClara',
     author_email='aguaclara@cornell.edu',
     description='aguaclara_research',
-    download_url='',
+    download_url='https://github.com/AguaClara/aguaclara_research',
     cmdclass={
         'coverage': Coverage,
     },
