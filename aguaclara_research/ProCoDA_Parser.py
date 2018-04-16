@@ -1,5 +1,6 @@
 from aguaclara_research.play import *
 
+
 def read_state(dates, state, column, units="", path=""):
     """Reads a ProCoDA file and outputs the data column and time vector for
     each iteration of the given state.
@@ -98,10 +99,11 @@ def read_state(dates, state, column, units="", path=""):
             overnight = True
 
     data_agg = np.vstack(data_agg)
-    if units == !":
+    if units != "":
         return data_agg[:, 0]*u.day, data_agg[:, 1]*u(units)
     else:
         return data_agg[:, 0]*u.day, data_agg[:, 1]
+
 
 def average_state(dates, state, column, units="", path=""):
     """Outputs the average value of the data for each instance of a state in
@@ -203,6 +205,7 @@ def average_state(dates, state, column, units="", path=""):
         return averages*u(units)
     else:
         return averages
+
 
 def perform_function_on_state(func, dates, state, column, units="", path=""):
     """Performs the function given on each state of the data for the given state
@@ -320,6 +323,7 @@ def perform_function_on_state(func, dates, state, column, units="", path=""):
 
     return output
 
+
 def plot_state(dates, state, column, units="", path=""):
     """Reads a ProCoDA file and plots the data column for each iteration of
     the given state.
@@ -415,7 +419,7 @@ def plot_state(dates, state, column, units="", path=""):
 
     plt.figure()
     for i in data_agg:
-        t = i[:,0] - i[0,0]
-        plt.plot(t,i[:,1])
+        t = i[:, 0] - i[0, 0]
+        plt.plot(t, i[:, 1])
 
     plt.show()
