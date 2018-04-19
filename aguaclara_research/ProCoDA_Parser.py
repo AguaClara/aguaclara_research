@@ -1,6 +1,107 @@
 from aguaclara_research.play import *
 
 
+def ftime(data_file_path, start, end=-1):
+    """This function extracts the column of times from a ProCoDA data file.
+
+    Parameters
+    ----------
+    data_file_path : string
+        File path. If the file is in the working directory, then the file name
+        is sufficient.
+
+    start : int
+        Index of first row of data to extract from the data file
+
+    end : int, optional
+        Index of last row of data to extract from the data
+        Defaults to -1, which extracts all the data in the file
+
+    Returns
+    -------
+    numpy array
+        Experimental times starting at 0 day with units of days.
+
+    Examples
+    --------
+
+
+    """
+    df = pd.read_csv(data_file_path, delimiter='\t')
+    start_time = pd.to_numeric(df.iloc[start, 0])*u.day
+    day_times = pd.to_numeric(df.iloc[start:end, 0])
+    time_data = np.subtract((np.array(day_times)*u.day), start_time)
+    return time_data
+
+
+def Column_of_data(data_file_path, start, end, column, units=""):
+    """This function extracts a column of data from a ProCoDA data file.
+
+    Parameters
+    ----------
+    data_file_path : string
+        File path. If the file is in the working directory, then the file name
+        is sufficient.
+
+    start : int
+        Index of first row of data to extract from the data file
+
+    end : int
+    Index of last row of data to extract from the data
+    If the goal is to extract the data up to the end of the file use -1
+
+    column : int
+        Index of the column that you want to extract. Column 0 is time.
+        The first data column is column 1.
+
+    units : string, optional
+        The units you want to apply to the data, e.g. 'mg/L'.
+        Defaults to "" which indicates no units
+
+    Returns
+    -------
+    numpy array
+        Experimental data with the units applied.
+
+    Examples
+    --------
+
+    """
+    df = pd.read_csv(data_file_path, delimiter='\t')
+    if units == "":
+        data = np.array(pd.to_numeric(df.iloc[start:end, column]))
+    else:
+        data = np.array(pd.to_numeric(df.iloc[start:end, column]))*u(units)
+    return data
+
+
+def notes(data_file_path):
+    """This function extracts any experimental notes from a ProCoDA data file.
+
+    Parameters
+    ----------
+    data_file_path : string
+        File path. If the file is in the working directory, then the file name
+        is sufficient.
+
+    Returns
+    -------
+    dataframe
+        The rows of the data file that contain text notes inserted during the
+        experiment. Use this to identify the section of the data file that you
+        want to extract.
+
+    Examples
+    --------
+
+    """
+    df = pd.read_csv(data_file_path, delimiter='\t')
+    text_row = df.iloc[0:-1, 0].str.contains('[a-z]', '[A-Z]')
+    text_row_index = text_row.index[text_row].tolist()
+    notes = df.loc[text_row_index]
+    return notes
+
+
 def read_state(dates, state, column, units="", path=""):
     """Reads a ProCoDA file and outputs the data column and time vector for
     each iteration of the given state.
@@ -11,7 +112,7 @@ def read_state(dates, state, column, units="", path=""):
         A list of dates for which data was recorded, in the form "M-D-Y"
 
     state : string
-        The name of the state for which data should be extracted
+        The state ID number for which data should be extracted
 
     column : string
         Index of the column that you want to extract. Column 0 is time.
@@ -34,8 +135,8 @@ def read_state(dates, state, column, units="", path=""):
         Data in the given column during the given state with units
 
     Examples
-    -------
-    time, data = read_state(["6-19-2013", "6-20-2013"], "1. Backwash entire system", 28, "mL/s")
+    --------
+    time, data = read_state(["6-19-2013", "6-20-2013"], "1", 28, "mL/s")
 
     """
     data_agg = []
@@ -54,7 +155,7 @@ def read_state(dates, state, column, units="", path=""):
         data = np.array(data)
 
         # get the start and end times for the state
-        state_start_idx = states[:, 2] == state
+        state_start_idx = states[:, 1] == state
         state_start = states[state_start_idx, 0]
         state_end_idx = np.append([False], state_start_idx[0:(np.size(state_start_idx)-1)])
         state_end = states[state_end_idx, 0]
@@ -115,7 +216,7 @@ def average_state(dates, state, column, units="", path=""):
         A list of dates for which data was recorded, in the form "M-D-Y"
 
     state : string
-        The name of the state for which data should be extracted
+        The state ID number for which data should be extracted
 
     column : string
         Index of the column that you want to extract. Column 0 is time.
@@ -135,8 +236,8 @@ def average_state(dates, state, column, units="", path=""):
         A list of averages for each instance of the given state
 
     Examples
-    -------
-    data_avgs = average_state(["6-19-2013", "6-20-2013"], "1. Backwash entire system", 28, "mL/s")
+    --------
+    data_avgs = average_state(["6-19-2013", "6-20-2013"], "1", 28, "mL/s")
 
     """
     data_agg = []
@@ -155,7 +256,7 @@ def average_state(dates, state, column, units="", path=""):
         data = np.array(data)
 
         # get the start and end times for the state
-        state_start_idx = states[:, 2] == state
+        state_start_idx = states[:, 1] == state
         state_start = states[state_start_idx, 0]
         state_end_idx = np.append([False], state_start_idx[0:(np.size(state_start_idx)-1)])
         state_end = states[state_end_idx, 0]
@@ -220,7 +321,7 @@ def perform_function_on_state(func, dates, state, column, units="", path=""):
         A list of dates for which data was recorded, in the form "M-D-Y"
 
     state : string
-        The name of the state for which data should be extracted
+        The state ID number for which data should be extracted
 
     column : string
         Index of the column that you want to extract. Column 0 is time.
@@ -236,7 +337,7 @@ def perform_function_on_state(func, dates, state, column, units="", path=""):
 
     Returns
     -------
-    float list
+    list
         The outputs of the given function for each instance of the given state
 
     Requires
@@ -244,7 +345,7 @@ def perform_function_on_state(func, dates, state, column, units="", path=""):
     func takes in a list of data with units and outputs the correct units
 
     Examples
-    -------
+    --------
     def avg_with_units(lst):
         num = np.size(lst)
         acc = 0
@@ -253,7 +354,7 @@ def perform_function_on_state(func, dates, state, column, units="", path=""):
 
         return acc / num
 
-    data_avgs = perform_function_on_state(avg_with_units,["6-19-2013", "6-20-2013"], "1. Backwash entire system", 28, "mL/s")
+    data_avgs = perform_function_on_state(avg_with_units, ["6-19-2013", "6-20-2013"], "1", 28, "mL/s")
 
     """
     data_agg = []
@@ -272,7 +373,7 @@ def perform_function_on_state(func, dates, state, column, units="", path=""):
         data = np.array(data)
 
         # get the start and end times for the state
-        state_start_idx = states[:, 2] == state
+        state_start_idx = states[:, 1] == state
         state_start = states[state_start_idx, 0]
         state_end_idx = np.append([False], state_start_idx[0:(np.size(state_start_idx)-1)])
         state_end = states[state_end_idx, 0]
@@ -334,7 +435,7 @@ def plot_state(dates, state, column, path=""):
         A list of dates for which data was recorded, in the form "M-D-Y"
 
     state : string
-        The name of the state which should be plotted
+        The state ID number for which data should be plotted
 
     column : string
         Index of the column that you want to extract. Column 0 is time.
@@ -349,8 +450,8 @@ def plot_state(dates, state, column, path=""):
     None
 
     Examples
-    -------
-    plot_state(["6-19-2013", "6-20-2013"], "1. Backwash entire system", 28)
+    --------
+    plot_state(["6-19-2013", "6-20-2013"], "1", 28)
 
     """
     data_agg = []
@@ -369,7 +470,7 @@ def plot_state(dates, state, column, path=""):
         data = np.array(data)
 
         # get the start and end times for the state
-        state_start_idx = states[:, 2] == state
+        state_start_idx = states[:, 1] == state
         state_start = states[state_start_idx, 0]
         state_end_idx = np.append([False], state_start_idx[0:(np.size(state_start_idx)-1)])
         state_end = states[state_end_idx, 0]
@@ -419,3 +520,137 @@ def plot_state(dates, state, column, path=""):
         plt.plot(t, i[:, 1])
 
     plt.show()
+
+
+def read_state_with_metafile(func, state, column, path, units=""):
+    """Takes in a ProCoDA meta file and performs a function for all data of a
+    certain state in each of the experiments (denoted by file paths in then
+    metafile)
+
+    Parameters
+    ----------
+    func : function
+        A function which will be applied to data from each instance of the state
+
+    state : string
+        The state ID number for which data should be extracted
+
+    column : string
+        Index of the column that you want to extract. Column 0 is time.
+        The first data column is column 1.
+
+    path : string
+        Path to your ProCoDA metafile (must be tab-delimited)
+
+    units : string, optional
+        The units you want to apply to the data, e.g. 'mg/L'.
+        Defaults to "" which indicates no units
+
+    Returns
+    -------
+    ids : string list
+        The list of experiment ids given in the metafile
+
+    outputs : list
+        The outputs of the given function for each experiment
+
+    Examples
+    --------
+    def avg_with_units(lst):
+        num = np.size(lst)
+        acc = 0
+        for i in lst:
+            acc = i + acc
+
+        return acc / num
+
+    read_state_with_metafile(avg_with_units, "")
+
+    """
+    outputs = []
+
+    metafile = pd.read_csv(path, delimiter='\t', header=None)
+    metafile = np.array(metafile)
+
+    ids = metafile[1:, 0]
+
+    basepath = metafile[0, 4]
+    paths = metafile[1:-1, 4]
+
+    # use a loop to evaluate each experiment in the metafile
+    for i in range(paths):
+        # get the range of dates for experiment i
+        day1 = metafile[i+1, 1]
+
+        # modify the metafile date so that it works with datetime format
+        if day1[2] != "-":
+            day1 = "0" + day1
+        if day1[5] != "-":
+            day1 = day1[:3] + "0" + day1[3:]
+
+        dt = datetime.strptime(day1, "%m-%d-%Y")
+        duration = metafile[i+1, 3]
+
+        date_list = []
+        for j in range(duration):
+            curr_day = dt.strftime("%m-%d-%Y")
+            if curr_day[3] == "0":
+                curr_day = curr_day[:3] + curr_day[4:]
+            if curr_day[0] == "0":
+                curr_day = curr_day[1:]
+
+            date_list.append(curr_day)
+
+            dt = dt + timedelta(days=1)
+
+        _, data = read_state(date_list, state, column, units, basepath + paths)
+
+        outputs.append(func(data))
+
+    return ids, outputs
+
+
+def write_calculations_to_csv(funcs, states, columns, path, headers, out_name):
+    """
+
+    Parameters
+    ----------
+    funcs : function (list)
+        A function or list of functions which will be applied in order to the
+        data. If only one function is given it is applied to all the
+        states/columns
+
+    states : string (list)
+        The state ID numbers for which data should be extracted. List should be
+        in order of calculation or if only one state is given then it will be
+        used for all the calculations
+
+    column : string (list)
+        Index of the column that you want to extract. Column 0 is time.
+        The first data column is column 1. If only one column is given it is
+        used for all the calculations
+
+    path : string
+        Path to your ProCoDA metafile (must be tab-delimited)
+
+    headers : string list
+        List of the desired header for each calculation, in order
+
+    out_name : string
+        Desired name for the output file. Can include a relative path
+
+    Returns
+    -------
+    out_name.csv
+        A CSV file with the each column being a new calcuation and each row
+        being a new experiment on which the calcuations were performed
+
+    Requires
+    --------
+    funcs, states, columns, and headers are all of the same length if they are
+    lists. Some being lists and some single values are okay.
+
+    Examples
+    --------
+
+    """
