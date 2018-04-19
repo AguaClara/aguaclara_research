@@ -17,23 +17,23 @@ def read_state(dates, state, column, units="", path=""):
         Index of the column that you want to extract. Column 0 is time.
         The first data column is column 1.
 
-    units : string
+    units : string, optional
         The units you want to apply to the data, e.g. 'mg/L'.
         Defaults to "" which indicates no units
 
-    path : strings
+    path : string, optional
         Optional argument of the path to the folder containing your ProCoDA
         files. Defaults to the current directory if no argument is passed in
 
     Returns
     -------
-    time : float list
-        List of times corresponding to the data (with units)
+    time : numpy array
+        Times corresponding to the data (with units)
 
-    data : float list
-        List data in the given column during the given state with units
+    data : numpy array
+        Data in the given column during the given state with units
 
-    Example
+    Examples
     -------
     time, data = read_state(["6-19-2013", "6-20-2013"], "1. Backwash entire system", 28, "mL/s")
 
@@ -121,11 +121,11 @@ def average_state(dates, state, column, units="", path=""):
         Index of the column that you want to extract. Column 0 is time.
         The first data column is column 1.
 
-    units : string
+    units : string, optional
         The units you want to apply to the data, e.g. 'mg/L'.
         Defaults to "" which indicates no units
 
-    path : strings
+    path : string, optional
         Optional argument of the path to the folder containing your ProCoDA
         files. Defaults to the current directory if no argument is passed in
 
@@ -134,7 +134,7 @@ def average_state(dates, state, column, units="", path=""):
     float list
         A list of averages for each instance of the given state
 
-    Example
+    Examples
     -------
     data_avgs = average_state(["6-19-2013", "6-20-2013"], "1. Backwash entire system", 28, "mL/s")
 
@@ -226,24 +226,24 @@ def perform_function_on_state(func, dates, state, column, units="", path=""):
         Index of the column that you want to extract. Column 0 is time.
         The first data column is column 1.
 
-    units : string
+    units : string, optional
         The units you want to apply to the data, e.g. 'mg/L'.
         Defaults to "" which indicates no units
 
-    path : strings
+    path : string, optional
         Optional argument of the path to the folder containing your ProCoDA
         files. Defaults to the current directory if no argument is passed in
 
     Returns
     -------
     float list
-        A list of averages for each instance of the given state
+        The outputs of the given function for each instance of the given state
 
     Requires
     --------
     func takes in a list of data with units and outputs the correct units
 
-    Example
+    Examples
     -------
     def avg_with_units(lst):
         num = np.size(lst)
@@ -324,7 +324,7 @@ def perform_function_on_state(func, dates, state, column, units="", path=""):
     return output
 
 
-def plot_state(dates, state, column, units="", path=""):
+def plot_state(dates, state, column, path=""):
     """Reads a ProCoDA file and plots the data column for each iteration of
     the given state.
 
@@ -340,11 +340,7 @@ def plot_state(dates, state, column, units="", path=""):
         Index of the column that you want to extract. Column 0 is time.
         The first data column is column 1.
 
-    units : string
-        The units you want to apply to the data, e.g. 'mg/L'.
-        Defaults to "" which indicates no units
-
-    path : strings
+    path : string, optional
         Optional argument of the path to the folder containing your ProCoDA
         files. Defaults to the current directory if no argument is passed in
 
@@ -352,9 +348,9 @@ def plot_state(dates, state, column, units="", path=""):
     -------
     None
 
-    Example
+    Examples
     -------
-    plot_state(["6-19-2013", "6-20-2013"], "1. Backwash entire system", 28, "mL/s")
+    plot_state(["6-19-2013", "6-20-2013"], "1. Backwash entire system", 28)
 
     """
     data_agg = []
