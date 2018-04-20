@@ -108,8 +108,9 @@ def read_state(dates, state, column, units="", path=""):
 
     Parameters
     ----------
-    dates : string list
-        A list of dates for which data was recorded, in the form "M-D-Y"
+    dates : string (list)
+        A list of dates or single date for which data was recorded, in
+        the form "M-D-Y"
 
     state : string
         The state ID number for which data should be extracted
@@ -143,6 +144,9 @@ def read_state(dates, state, column, units="", path=""):
     day = 0
     first_day = True
     overnight = False
+
+    if not isinstance(dates, list):
+        dates = [dates]
 
     for d in dates:
         state_file = path + "statelog " + d + ".xls"
@@ -212,8 +216,9 @@ def average_state(dates, state, column, units="", path=""):
 
     Parameters
     ----------
-    dates : string list
-        A list of dates for which data was recorded, in the form "M-D-Y"
+    dates : string (list)
+        A list of dates or single date for which data was recorded, in
+        the form "M-D-Y"
 
     state : string
         The state ID number for which data should be extracted
@@ -244,6 +249,9 @@ def average_state(dates, state, column, units="", path=""):
     day = 0
     first_day = True
     overnight = False
+
+    if not isinstance(dates, list):
+        dates = [dates]
 
     for d in dates:
         state_file = path + "statelog " + d + ".xls"
@@ -317,8 +325,9 @@ def perform_function_on_state(func, dates, state, column, units="", path=""):
     func : function
         A function which will be applied to data from each instance of the state
 
-    dates : string list
-        A list of dates for which data was recorded, in the form "M-D-Y"
+    dates : string (list)
+        A list of dates or single date for which data was recorded, in
+        the form "M-D-Y"
 
     state : string
         The state ID number for which data should be extracted
@@ -361,6 +370,9 @@ def perform_function_on_state(func, dates, state, column, units="", path=""):
     day = 0
     first_day = True
     overnight = False
+
+    if not isinstance(dates, list):
+        dates = [dates]
 
     for d in dates:
         state_file = path + "statelog " + d + ".xls"
@@ -431,8 +443,9 @@ def plot_state(dates, state, column, path=""):
 
     Parameters
     ----------
-    dates : string list
-        A list of dates for which data was recorded, in the form "M-D-Y"
+    dates : string (list)
+        A list of dates or single date for which data was recorded, in
+        the form "M-D-Y"
 
     state : string
         The state ID number for which data should be plotted
@@ -458,6 +471,9 @@ def plot_state(dates, state, column, path=""):
     day = 0
     first_day = True
     overnight = False
+
+    if not isinstance(dates, list):
+        dates = [dates]
 
     for d in dates:
         state_file = path + "statelog " + d + ".xls"
@@ -625,7 +641,7 @@ def write_calculations_to_csv(funcs, states, columns, path, headers, out_name):
         in order of calculation or if only one state is given then it will be
         used for all the calculations
 
-    column : string (list)
+    columns : string (list)
         Index of the column that you want to extract. Column 0 is time.
         The first data column is column 1. If only one column is given it is
         used for all the calculations
@@ -645,6 +661,9 @@ def write_calculations_to_csv(funcs, states, columns, path, headers, out_name):
         A CSV file with the each column being a new calcuation and each row
         being a new experiment on which the calcuations were performed
 
+    output : DataFrame
+        Pandas dataframe which is the same data that was written to CSV
+
     Requires
     --------
     funcs, states, columns, and headers are all of the same length if they are
@@ -654,3 +673,21 @@ def write_calculations_to_csv(funcs, states, columns, path, headers, out_name):
     --------
 
     """
+    if not isinstance(funcs, list):
+        [funcs] * headers.len()
+
+    if not isinstance(states, list):
+        [states] * headers.len()
+
+    if not isinstance(columns, list):
+        [columns] * headers.len()
+
+    data_agg = []
+    for i in range(headers.len()):
+        ids, data = read_state_with_metafile(funcs[i], states[i], columns[i], path)
+        data_agg = np.append(data_agg, [data])
+
+    output = pd.DataFrame(data=data_agg.T, columns=headers)
+    output.to_csv(out_name, sep='\t')
+
+    return output
