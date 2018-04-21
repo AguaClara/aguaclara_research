@@ -594,7 +594,7 @@ def read_state_with_metafile(func, state, column, path, units=""):
     paths = metafile[1:-1, 4]
 
     # use a loop to evaluate each experiment in the metafile
-    for i in range(paths):
+    for i in range(len(paths)):
         # get the range of dates for experiment i
         day1 = metafile[i+1, 1]
 
@@ -674,16 +674,16 @@ def write_calculations_to_csv(funcs, states, columns, path, headers, out_name):
 
     """
     if not isinstance(funcs, list):
-        [funcs] * headers.len()
+        [funcs] * len(headers)
 
     if not isinstance(states, list):
-        [states] * headers.len()
+        [states] * len(headers)
 
     if not isinstance(columns, list):
-        [columns] * headers.len()
+        [columns] * len(headers)
 
     data_agg = []
-    for i in range(headers.len()):
+    for i in range(len(headers)):
         ids, data = read_state_with_metafile(funcs[i], states[i], columns[i], path)
         data_agg = np.append(data_agg, [data])
 
