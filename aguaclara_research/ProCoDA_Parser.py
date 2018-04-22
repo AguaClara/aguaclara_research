@@ -34,7 +34,7 @@ def ftime(data_file_path, start, end=-1):
     return time_data
 
 
-def Column_of_data(data_file_path, start, end, column, units=""):
+def Column_of_data(data_file_path, start, column, end="-1", units=""):
     """This function extracts a column of data from a ProCoDA data file.
 
     Parameters
@@ -46,13 +46,16 @@ def Column_of_data(data_file_path, start, end, column, units=""):
     start : int
         Index of first row of data to extract from the data file
 
-    end : int
-    Index of last row of data to extract from the data
-    If the goal is to extract the data up to the end of the file use -1
+    end : int, optional
+        Index of last row of data to extract from the data
+        Defaults to -1, which extracts all the data in the file
 
-    column : int
-        Index of the column that you want to extract. Column 0 is time.
-        The first data column is column 1.
+    column : int or string
+        int:
+            Index of the column that you want to extract. Column 0 is time.
+            The first data column is column 1.
+        string:
+            Name of the column header that you want to extract
 
     units : string, optional
         The units you want to apply to the data, e.g. 'mg/L'.
@@ -69,9 +72,15 @@ def Column_of_data(data_file_path, start, end, column, units=""):
     """
     df = pd.read_csv(data_file_path, delimiter='\t')
     if units == "":
-        data = np.array(pd.to_numeric(df.iloc[start:end, column]))
+        if isinstance(column, int):
+            data = np.array(pd.to_numeric(df.iloc[start:end, column]))
+        else:
+            df[column][0:len(df)]
     else:
-        data = np.array(pd.to_numeric(df.iloc[start:end, column]))*u(units)
+        if isinstance(column, int):
+            data = np.array(pd.to_numeric(df.iloc[start:end, column]))*u(units)
+        else:
+            df[column][0:len(df)]*u(units)
     return data
 
 
@@ -101,8 +110,7 @@ def notes(data_file_path):
     notes = df.loc[text_row_index]
     return notes
 
-
-def read_state(dates, state, column, units="", path=""):
+def read_state(dates, state, column, units="", path="", extension=".xls"):
     """Reads a ProCoDA file and outputs the data column and time vector for
     each iteration of the given state.
 
@@ -115,9 +123,12 @@ def read_state(dates, state, column, units="", path=""):
     state : string
         The state ID number for which data should be extracted
 
-    column : string
-        Index of the column that you want to extract. Column 0 is time.
-        The first data column is column 1.
+    column : int or string
+        int:
+            Index of the column that you want to extract. Column 0 is time.
+            The first data column is column 1.
+        string:
+            Name of the column header that you want to extract
 
     units : string, optional
         The units you want to apply to the data, e.g. 'mg/L'.
@@ -126,6 +137,10 @@ def read_state(dates, state, column, units="", path=""):
     path : string, optional
         Optional argument of the path to the folder containing your ProCoDA
         files. Defaults to the current directory if no argument is passed in
+
+    extension : string, optional
+        The file extension of the tab delimited file. Defaults to ".xls" if
+        no argument is passed in
 
     Returns
     -------
@@ -149,8 +164,8 @@ def read_state(dates, state, column, units="", path=""):
         dates = [dates]
 
     for d in dates:
-        state_file = path + "statelog " + d + ".xls"
-        data_file = path + "datalog " + d + ".xls"
+        state_file = path + "statelog " + d + extension
+        data_file = path + "datalog " + d + extension
 
         states = pd.read_csv(state_file, delimiter='\t')
         data = pd.read_csv(data_file, delimiter='\t')
@@ -190,7 +205,10 @@ def read_state(dates, state, column, units="", path=""):
         # extract data at those times
         for i in range(np.size(data_start)):
             t = data[data_start[i]:data_end[i], 0] + day - start_time
-            c = data[data_start[i]:data_end[i], column]
+            if isinstance(column, int):
+                c = data[data_start[i]:data_end[i], column]
+            else:
+                c = data[column][data_start[i]:data_end[i]]
             if overnight and i == 0:
                 data_agg = np.insert(data_agg[-1], np.size(data_agg[-1][:, 0]),
                                      np.vstack((t, c)).T)
@@ -210,7 +228,7 @@ def read_state(dates, state, column, units="", path=""):
         return data_agg[:, 0]*u.day, data_agg[:, 1]
 
 
-def average_state(dates, state, column, units="", path=""):
+def average_state(dates, state, column, units="", path="", extension=".xls"):
     """Outputs the average value of the data for each instance of a state in
     the given ProCoDA files
 
@@ -223,9 +241,12 @@ def average_state(dates, state, column, units="", path=""):
     state : string
         The state ID number for which data should be extracted
 
-    column : string
-        Index of the column that you want to extract. Column 0 is time.
-        The first data column is column 1.
+    column : int or string
+        int:
+            Index of the column that you want to extract. Column 0 is time.
+            The first data column is column 1.
+        string:
+            Name of the column header that you want to extract
 
     units : string, optional
         The units you want to apply to the data, e.g. 'mg/L'.
@@ -234,6 +255,10 @@ def average_state(dates, state, column, units="", path=""):
     path : string, optional
         Optional argument of the path to the folder containing your ProCoDA
         files. Defaults to the current directory if no argument is passed in
+
+    extension : string, optional
+        The file extension of the tab delimited file. Defaults to ".xls" if
+        no argument is passed in
 
     Returns
     -------
@@ -254,8 +279,8 @@ def average_state(dates, state, column, units="", path=""):
         dates = [dates]
 
     for d in dates:
-        state_file = path + "statelog " + d + ".xls"
-        data_file = path + "datalog " + d + ".xls"
+        state_file = path + "statelog " + d + extension
+        data_file = path + "datalog " + d + extension
 
         states = pd.read_csv(state_file, delimiter='\t')
         data = pd.read_csv(data_file, delimiter='\t')
@@ -294,7 +319,10 @@ def average_state(dates, state, column, units="", path=""):
 
         # extract data at those times
         for i in range(np.size(data_start)):
-            c = data[data_start[i]:data_end[i], column]
+            if isinstance(column, int):
+                c = data[data_start[i]:data_end[i], column]
+            else:
+                c = data[column][data_start[i]:data_end[i]]
             if overnight and i == 0:
                 data_agg = np.insert(data_agg[-1], np.size(data_agg[-1][:]), c)
             else:
@@ -316,7 +344,7 @@ def average_state(dates, state, column, units="", path=""):
         return averages
 
 
-def perform_function_on_state(func, dates, state, column, units="", path=""):
+def perform_function_on_state(func, dates, state, column, units="", path="", extension=".xls"):
     """Performs the function given on each state of the data for the given state
     in the given column and outputs the result for each instance of the state
 
@@ -332,9 +360,12 @@ def perform_function_on_state(func, dates, state, column, units="", path=""):
     state : string
         The state ID number for which data should be extracted
 
-    column : string
-        Index of the column that you want to extract. Column 0 is time.
-        The first data column is column 1.
+    column : int or string
+        int:
+            Index of the column that you want to extract. Column 0 is time.
+            The first data column is column 1.
+        string:
+            Name of the column header that you want to extract
 
     units : string, optional
         The units you want to apply to the data, e.g. 'mg/L'.
@@ -343,6 +374,10 @@ def perform_function_on_state(func, dates, state, column, units="", path=""):
     path : string, optional
         Optional argument of the path to the folder containing your ProCoDA
         files. Defaults to the current directory if no argument is passed in
+
+    extension : string, optional
+        The file extension of the tab delimited file. Defaults to ".xls" if
+        no argument is passed in
 
     Returns
     -------
@@ -375,8 +410,8 @@ def perform_function_on_state(func, dates, state, column, units="", path=""):
         dates = [dates]
 
     for d in dates:
-        state_file = path + "statelog " + d + ".xls"
-        data_file = path + "datalog " + d + ".xls"
+        state_file = path + "statelog " + d + extension
+        data_file = path + "datalog " + d + extension
 
         states = pd.read_csv(state_file, delimiter='\t')
         data = pd.read_csv(data_file, delimiter='\t')
@@ -415,7 +450,10 @@ def perform_function_on_state(func, dates, state, column, units="", path=""):
 
         # extract data at those times
         for i in range(np.size(data_start)):
-            c = data[data_start[i]:data_end[i], column]
+            if isinstance(column, int):
+                c = data[data_start[i]:data_end[i], column]
+            else:
+                c = data[column][data_start[i]:data_end[i]]
             if overnight and i == 0:
                 data_agg = np.insert(data_agg[-1], np.size(data_agg[-1][:]), c)
             else:
@@ -437,7 +475,7 @@ def perform_function_on_state(func, dates, state, column, units="", path=""):
     return output
 
 
-def plot_state(dates, state, column, path=""):
+def plot_state(dates, state, column, path="", extension=".xls"):
     """Reads a ProCoDA file and plots the data column for each iteration of
     the given state.
 
@@ -450,13 +488,20 @@ def plot_state(dates, state, column, path=""):
     state : string
         The state ID number for which data should be plotted
 
-    column : string
-        Index of the column that you want to extract. Column 0 is time.
-        The first data column is column 1.
+    column : int or string
+        int:
+            Index of the column that you want to extract. Column 0 is time.
+            The first data column is column 1.
+        string:
+            Name of the column header that you want to extract
 
     path : string, optional
         Optional argument of the path to the folder containing your ProCoDA
         files. Defaults to the current directory if no argument is passed in
+
+    extension : string, optional
+        The file extension of the tab delimited file. Defaults to ".xls" if
+        no argument is passed in
 
     Returns
     -------
@@ -476,8 +521,8 @@ def plot_state(dates, state, column, path=""):
         dates = [dates]
 
     for d in dates:
-        state_file = path + "statelog " + d + ".xls"
-        data_file = path + "datalog " + d + ".xls"
+        state_file = path + "statelog " + d + extension
+        data_file = path + "datalog " + d + extension
 
         states = pd.read_csv(state_file, delimiter='\t')
         data = pd.read_csv(data_file, delimiter='\t')
@@ -517,7 +562,10 @@ def plot_state(dates, state, column, path=""):
         # extract data at those times
         for i in range(np.size(data_start)):
             t = data[data_start[i]:data_end[i], 0] + day - start_time
-            c = data[data_start[i]:data_end[i], column]
+            if isinstance(column, int):
+                c = data[data_start[i]:data_end[i], column]
+            else:
+                c = data[column][data_start[i]:data_end[i]]
             if overnight and i == 0:
                 data_agg = np.insert(data_agg[-1], np.size(data_agg[-1][:, 0]),
                                      np.vstack((t, c)).T)
@@ -538,7 +586,7 @@ def plot_state(dates, state, column, path=""):
     plt.show()
 
 
-def read_state_with_metafile(func, state, column, path, units=""):
+def read_state_with_metafile(func, state, column, path, metaids=[], extension=".xls", units=""):
     """Takes in a ProCoDA meta file and performs a function for all data of a
     certain state in each of the experiments (denoted by file paths in then
     metafile)
@@ -551,16 +599,26 @@ def read_state_with_metafile(func, state, column, path, units=""):
     state : string
         The state ID number for which data should be extracted
 
-    column : string
-        Index of the column that you want to extract. Column 0 is time.
-        The first data column is column 1.
+    column : int or string
+        int:
+            Index of the column that you want to extract. Column 0 is time.
+            The first data column is column 1.
+        string:
+            Name of the column header that you want to extract
 
     path : string
         Path to your ProCoDA metafile (must be tab-delimited)
 
+    meta_ids : string list, optional
+        a list of the experiment IDs you'd like to analyze from the metafile
+
     units : string, optional
         The units you want to apply to the data, e.g. 'mg/L'.
         Defaults to "" which indicates no units
+
+    extension : string, optional
+        The file extension of the tab delimited file. Defaults to ".xls" if
+        no argument is passed in
 
     Returns
     -------
@@ -590,8 +648,15 @@ def read_state_with_metafile(func, state, column, path, units=""):
 
     ids = metafile[1:, 0]
 
+    if not metaids:
+        paths = []
+    for i in range(len(ids)):
+        if ids[i] in meta_ids:
+            paths.append(metafile[i, 4])
+    else:
+        paths = metafile[1:-1, 4]
+
     basepath = metafile[0, 4]
-    paths = metafile[1:-1, 4]
 
     # use a loop to evaluate each experiment in the metafile
     for i in range(len(paths)):
@@ -619,15 +684,17 @@ def read_state_with_metafile(func, state, column, path, units=""):
 
             dt = dt + timedelta(days=1)
 
-        _, data = read_state(date_list, state, column, units, basepath + paths)
+        _, data = read_state(date_list, state, column, units,
+                             basepath + paths, extension)
 
         outputs.append(func(data))
 
     return ids, outputs
 
 
-def write_calculations_to_csv(funcs, states, columns, path, headers, out_name):
-    """
+def write_calculations_to_csv(funcs, states, columns, path, headers, out_name, extension=".xls"):
+    """Writes each output of the given functions on the given states and data
+    columns to a new column in a
 
     Parameters
     ----------
@@ -641,10 +708,13 @@ def write_calculations_to_csv(funcs, states, columns, path, headers, out_name):
         in order of calculation or if only one state is given then it will be
         used for all the calculations
 
-    columns : string (list)
-        Index of the column that you want to extract. Column 0 is time.
-        The first data column is column 1. If only one column is given it is
-        used for all the calculations
+    columns : int or string (list)
+        If only one column is given it is used for all the calculations
+            int:
+                Index of the column that you want to extract. Column 0 is time.
+                The first data column is column 1.
+            string:
+                Name of the column header that you want to extract
 
     path : string
         Path to your ProCoDA metafile (must be tab-delimited)
@@ -654,6 +724,10 @@ def write_calculations_to_csv(funcs, states, columns, path, headers, out_name):
 
     out_name : string
         Desired name for the output file. Can include a relative path
+
+    extension : string, optional
+        The file extension of the tab delimited file. Defaults to ".xls" if
+        no argument is passed in
 
     Returns
     -------
@@ -684,10 +758,11 @@ def write_calculations_to_csv(funcs, states, columns, path, headers, out_name):
 
     data_agg = []
     for i in range(len(headers)):
-        ids, data = read_state_with_metafile(funcs[i], states[i], columns[i], path)
+        ids, data = read_state_with_metafile(funcs[i], states[i], columns[i],
+                                             path, extension)
         data_agg = np.append(data_agg, [data])
 
-    output = pd.DataFrame(data=data_agg.T, columns=headers)
+    output = pd.DataFrame(data=(data_agg.T).insert(ids), columns=["IDs"]+headers)
     output.to_csv(out_name, sep='\t')
 
     return output
