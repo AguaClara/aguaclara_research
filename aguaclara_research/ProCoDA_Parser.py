@@ -762,7 +762,8 @@ def write_calculations_to_csv(funcs, states, columns, path, headers, out_name, e
                                              path, extension)
         data_agg = np.append(data_agg, [data])
 
-    output = pd.DataFrame(data=(data_agg.T).insert(ids), columns=["IDs"]+headers)
+    output = pd.DataFrame(data=(data_agg.T).insert(0, ids),
+                          columns=["IDs"]+headers)
     output.to_csv(out_name, sep='\t')
 
     return output
