@@ -586,7 +586,8 @@ def plot_state(dates, state, column, path="", extension=".xls"):
     plt.show()
 
 
-def read_state_with_metafile(func, state, column, path, metaids=[], extension=".xls", units=""):
+def read_state_with_metafile(func, state, column, path, metaids=[],
+                             extension=".xls", units=""):
     """Takes in a ProCoDA meta file and performs a function for all data of a
     certain state in each of the experiments (denoted by file paths in then
     metafile)
@@ -692,7 +693,8 @@ def read_state_with_metafile(func, state, column, path, metaids=[], extension=".
     return ids, outputs
 
 
-def write_calculations_to_csv(funcs, states, columns, path, headers, out_name, extension=".xls"):
+def write_calculations_to_csv(funcs, states, columns, path, headers, out_name,
+                              metaids=[], extension=".xls"):
     """Writes each output of the given functions on the given states and data
     columns to a new column in a
 
@@ -759,7 +761,7 @@ def write_calculations_to_csv(funcs, states, columns, path, headers, out_name, e
     data_agg = []
     for i in range(len(headers)):
         ids, data = read_state_with_metafile(funcs[i], states[i], columns[i],
-                                             path, extension)
+                                             path, metaids, extension)
         data_agg = np.append(data_agg, [data])
 
     output = pd.DataFrame(data=(data_agg.T).insert(0, ids),
