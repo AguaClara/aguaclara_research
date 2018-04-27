@@ -610,7 +610,7 @@ def read_state_with_metafile(func, state, column, path, metaids=[],
     path : string
         Path to your ProCoDA metafile (must be tab-delimited)
 
-    meta_ids : string list, optional
+    metaids : string list, optional
         a list of the experiment IDs you'd like to analyze from the metafile
 
     units : string, optional
@@ -651,9 +651,9 @@ def read_state_with_metafile(func, state, column, path, metaids=[],
 
     if not metaids:
         paths = []
-    for i in range(len(ids)):
-        if ids[i] in meta_ids:
-            paths.append(metafile[i, 4])
+        for i in range(len(ids)):
+            if ids[i] in meta_ids:
+                paths.append(metafile[i, 4])
     else:
         paths = metafile[1:-1, 4]
 
@@ -726,6 +726,9 @@ def write_calculations_to_csv(funcs, states, columns, path, headers, out_name,
 
     out_name : string
         Desired name for the output file. Can include a relative path
+
+    metaids : string list, optional
+        a list of the experiment IDs you'd like to analyze from the metafile
 
     extension : string, optional
         The file extension of the tab delimited file. Defaults to ".xls" if
