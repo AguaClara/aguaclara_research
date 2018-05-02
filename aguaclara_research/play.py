@@ -23,11 +23,10 @@ import scipy
 from scipy import special
 from scipy.optimize import curve_fit
 import collections
+from datetime import datetime, timedelta
 
 # AIDE imports
 from aide_design.play import *
-import aguaclara_research.Environmental_Processes_Analysis as epa
-import aguaclara_research.ProCoDA_Parser as pro
 
 def setup_aguaclara():
     """
@@ -40,7 +39,7 @@ def setup_aguaclara():
     #ensure_in_a_virtual_environment()
         # Don't want to scare the kiddos with virtual environments yet! TODO.
 
-def set_sig_fig(n: int = 4):
+def set_sig_fig(n=4):
     """Set the default number of significant figures used to print pint, pandas and numpy values
     quantities. Defaults to 4.
 
@@ -63,6 +62,7 @@ def set_sig_fig(n: int = 4):
         h after sigfig adjustment:  2.553253252 meter
         e after sigfig adjustment:  2.553253252e+16 meter
     """
+    assert isinstance(n, int), "Input must be an integer"
     u.default_format = '.' + str(n) + 'g'
     pd.options.display.float_format = ('{:,.' + str(n) + '}').format
 
