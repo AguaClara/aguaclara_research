@@ -8,7 +8,7 @@ from aguaclara_research.ProCoDA_Parser import *
 
 class TestProCoDAParser(unittest.TestCase):
 
-    def test_time_column_extraction(self):
+    def test_ftime(self):
         '''''
         Extract the time column from a data file.
         '''''
@@ -59,12 +59,12 @@ class TestProCoDAParser(unittest.TestCase):
          6.77069570e-03,   6.82855640e-03])*u.day, 5).tolist()
         )
 
-    def test_column_extraction(self):
+    def test_column_of_data(self):
         '''''
         Extract other columns of data and append units.
         '''''
         path = os.path.join(os.path.dirname(__file__), '.', 'data', 'Lab5Part2(CMFR_Final).xls')
-        answer = Column_of_data(path, 50, 1, -1, 'mg/L')
+        answer = column_of_data(path, 50, 1, -1, 'mg/L')
         answer = np.round(answer, 5)
         self.assertSequenceEqual(
         answer.tolist(),
@@ -100,16 +100,65 @@ class TestProCoDAParser(unittest.TestCase):
          1.97646523,   1.96455812,   1.95887971])*u('mg/L'), 5).tolist()
         )
 
-    def test_file_notes_function(self):
+    def test_notes(self):
         '''''
         Test function that extracts meta information from data file.
         '''''
         path = os.path.join(os.path.dirname(__file__), '.', 'data', 'Lab5Part2(CMFR_Final).xls')
         answer = notes(path)['Day fraction since midnight on ']
-        x = pd.DataFrame(index=[1,29,35],columns=['Day fraction since midnight on ', 'red dye (mg/L)', 'Run Pump ()', 'Pump ()'])
-        x.iloc[0][0]='Start'
-        x.iloc[1][0]='Start'
-        x.iloc[2][0]='30 mg/L'
+        x = pd.DataFrame(index=[1, 29, 35],
+                         columns=['Day fraction since midnight on ', 'red dye (mg/L)', 'Run Pump ()', 'Pump ()'])
+        x.iloc[0][0] = 'Start'
+        x.iloc[1][0] = 'Start'
+        x.iloc[2][0] = '30 mg/L'
         self.assertSequenceEqual(
         answer.tolist(),
         x['Day fraction since midnight on '].tolist())
+
+    def test_read_state(self):
+        path = os.path.join(os.path.dirname(__file__), '.', 'data', '')
+        time, data = read_state(["6-19-2013", "6-20-2013"], 1, 28, "mL/s", path)
+        time = np.round(time, 5)
+        self.assertSequenceEqual(
+        time.tolist()[1000:1100],
+        np.round(
+        [0.10189837999999996, 0.10190995999999997, 0.10192152999999993,
+         0.10193310999999994, 0.10194468000000001, 0.10195624999999997,
+         0.10196782999999998, 0.10197939999999994, 0.10199097999999995,
+         0.10200254999999991, 0.10201412999999993, 0.1020257,
+         0.10203726999999996, 0.10204884999999997, 0.10206041999999993,
+         0.10207199999999994, 0.10208357000000001, 0.10209513999999997,
+         0.10210671999999998, 0.10211828999999994, 0.10212986999999996,
+         0.10214143999999992, 0.10215300999999999,
+         0.10216459, 0.10217615999999996, 0.10218773999999997,
+         0.10219930999999993, 0.10221088, 0.1022224599999999,
+         0.10223402999999998, 0.10224560999999999, 0.10225717999999995,
+         0.10226874999999991, 0.10228032999999992, 0.10229189999999999,
+         0.10230348, 0.10231504999999996, 0.10232662999999997,
+         0.10233819999999993, 0.10234977, 0.1023613499999999,
+         0.10237291999999998, 0.10238449999999999, 0.10239606999999995,
+         0.10240763999999991, 0.10241921999999992, 0.10243079,
+         0.10244237, 0.10245393999999997, 0.10246550999999993,
+         0.10247708999999994, 0.10248866000000001, 0.10250023999999991,
+         0.10251180999999998, 0.10252337999999994, 0.10253495999999995,
+         0.10254652999999991, 0.10255810999999992, 0.10256968,
+         0.10258124999999996, 0.10259282999999997, 0.10260439999999993,
+         0.10261597999999994, 0.10262755000000001, 0.10263912999999991,
+         0.10265069999999998, 0.10266226999999994, 0.10267384999999996,
+         0.10268541999999992, 0.10269699999999993, 0.10270857,
+         0.10272013999999996, 0.10273171999999997, 0.10274328999999993,
+         0.10275486999999994, 0.1027664399999999, 0.10277800999999998,
+         0.10278958999999999, 0.10280115999999995, 0.10281273999999996,
+         0.10282430999999992, 0.10283587999999999, 0.10284746,
+         0.10285902999999996, 0.10287060999999997, 0.10288229999999998,
+         0.10289375, 0.1029054399999999, 0.10291701999999991,
+         0.10292858999999999, 0.10294017, 0.10295162999999996,
+         0.10296330999999992, 0.10297488999999993, 0.10298646,
+         0.1029980399999999, 0.10300960999999997, 0.10302106999999994,
+         0.10303275999999995, 0.10304421999999991]*u.day, 5).tolist()
+        )
+
+        self.assertSequenceEqual(
+        data.tolist()[1000:1100],
+        [5.4209375*u.mL/u.s for number in range(100)]
+        )

@@ -34,7 +34,7 @@ def ftime(data_file_path, start, end=-1):
     return time_data
 
 
-def Column_of_data(data_file_path, start, column, end="-1", units=""):
+def column_of_data(data_file_path, start, column, end="-1", units=""):
     """This function extracts a column of data from a ProCoDA data file.
 
     Parameters
@@ -110,6 +110,12 @@ def notes(data_file_path):
     notes = df.loc[text_row_index]
     return notes
 
+dates = ["6-19-2013", "6-20-2013"]
+state = "1"
+column = 28
+units = "mL/s"
+path = '../tests/data/'
+
 def read_state(dates, state, column, units="", path="", extension=".xls"):
     """Reads a ProCoDA file and outputs the data column and time vector for
     each iteration of the given state.
@@ -120,7 +126,7 @@ def read_state(dates, state, column, units="", path="", extension=".xls"):
         A list of dates or single date for which data was recorded, in
         the form "M-D-Y"
 
-    state : string
+    state : int
         The state ID number for which data should be extracted
 
     column : int or string
@@ -152,7 +158,7 @@ def read_state(dates, state, column, units="", path="", extension=".xls"):
 
     Examples
     --------
-    time, data = read_state(["6-19-2013", "6-20-2013"], "1", 28, "mL/s")
+    time, data = read_state(["6-19-2013", "6-20-2013"], 1, 28, "mL/s")
 
     """
     data_agg = []
@@ -238,7 +244,7 @@ def average_state(dates, state, column, units="", path="", extension=".xls"):
         A list of dates or single date for which data was recorded, in
         the form "M-D-Y"
 
-    state : string
+    state : int
         The state ID number for which data should be extracted
 
     column : int or string
@@ -267,7 +273,7 @@ def average_state(dates, state, column, units="", path="", extension=".xls"):
 
     Examples
     --------
-    data_avgs = average_state(["6-19-2013", "6-20-2013"], "1", 28, "mL/s")
+    data_avgs = average_state(["6-19-2013", "6-20-2013"], 1, 28, "mL/s")
 
     """
     data_agg = []
@@ -357,7 +363,7 @@ def perform_function_on_state(func, dates, state, column, units="", path="", ext
         A list of dates or single date for which data was recorded, in
         the form "M-D-Y"
 
-    state : string
+    state : int
         The state ID number for which data should be extracted
 
     column : int or string
@@ -398,7 +404,7 @@ def perform_function_on_state(func, dates, state, column, units="", path="", ext
 
         return acc / num
 
-    data_avgs = perform_function_on_state(avg_with_units, ["6-19-2013", "6-20-2013"], "1", 28, "mL/s")
+    data_avgs = perform_function_on_state(avg_with_units, ["6-19-2013", "6-20-2013"], 1, 28, "mL/s")
 
     """
     data_agg = []
@@ -485,7 +491,7 @@ def plot_state(dates, state, column, path="", extension=".xls"):
         A list of dates or single date for which data was recorded, in
         the form "M-D-Y"
 
-    state : string
+    state : int
         The state ID number for which data should be plotted
 
     column : int or string
@@ -509,7 +515,7 @@ def plot_state(dates, state, column, path="", extension=".xls"):
 
     Examples
     --------
-    plot_state(["6-19-2013", "6-20-2013"], "1", 28)
+    plot_state(["6-19-2013", "6-20-2013"], 1, 28)
 
     """
     data_agg = []
@@ -597,7 +603,7 @@ def read_state_with_metafile(func, state, column, path, metaids=[],
     func : function
         A function which will be applied to data from each instance of the state
 
-    state : string
+    state : int
         The state ID number for which data should be extracted
 
     column : int or string
