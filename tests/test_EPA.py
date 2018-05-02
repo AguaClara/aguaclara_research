@@ -6,7 +6,7 @@ import unittest
 from aguaclara_research.Environmental_Processes_Analysis import *
 
 
-class TestUtils(unittest.TestCase):
+class TestEPA(unittest.TestCase):
     '''''
     Test aguaclara_research's Environmental_Processes_Analysis
     '''''
