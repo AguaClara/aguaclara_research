@@ -65,5 +65,5 @@ setup(
         'virtualenv>=15.0.1,<16.0.0'
     ],
     url='https://github.com/AguaClara/aguaclara_research',
-    version='1.0.2'
+    version='1.0.3'
 )

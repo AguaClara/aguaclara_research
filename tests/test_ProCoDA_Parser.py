@@ -1,33 +1,23 @@
-'''''
-aguaclara_research tests.
-'''''
+"""
+tests for the aguaclara_research package's ProCoDA parsing functions
+"""
 
 import unittest
-from aguaclara_research.Environmental_Processes_Analysis import *
-import Environmental_Processes_Analysis.py
+import os
+from aguaclara_research.ProCoDA_Parser import *
 
-
-class TestUtils(unittest.TestCase):
-    '''''
-    Test aguaclara_research's Environmental_Processes_Analysis
-    '''''
-
-    def setUp(self):
-        pass
+class TestProCoDAParser(unittest.TestCase):
 
     def test_time_column_extraction(self):
         '''''
         Extract the time column from a data file.
         '''''
-        answer = ftime(
-            'Lab5Part2(CMFR_Final).xls',
-            50,
-            -1
-        )
-        answer = np.round(answer,5)
-        self.assertEqual(
-            answer,
-            np.round(np.array([  0.00000000e+00,   5.78662000e-05,   1.15725500e-04,
+        path = os.path.join(os.path.dirname(__file__), '.', 'data', 'Lab5Part2(CMFR_Final).xls')
+        answer = ftime(path, 50, -1)
+        answer = np.round(answer, 5)
+        self.assertSequenceEqual(
+         answer.tolist(),
+         np.round(np.array([0.00000000e+00,   5.78662000e-05,   1.15725500e-04,
          1.73586900e-04,   2.31470400e-04,   2.89325100e-04,
          3.47199600e-04,   4.05070800e-04,   4.62941200e-04,
          5.20805100e-04,   5.78682300e-04,   6.36541000e-04,
@@ -66,23 +56,18 @@ class TestUtils(unittest.TestCase):
          6.24987260e-03,   6.30772900e-03,   6.36560880e-03,
          6.42346920e-03,   6.48135320e-03,   6.53921020e-03,
          6.59709090e-03,   6.65494290e-03,   6.71281870e-03,
-         6.77069570e-03,   6.82855640e-03])*u.day,5)
+         6.77069570e-03,   6.82855640e-03])*u.day, 5).tolist()
         )
 
     def test_column_extraction(self):
         '''''
         Extract other columns of data and append units.
         '''''
-        answer = Column_of_data(
-        'Lab5Part2(CMFR_Final).xls',
-        50,
-        -1,
-        1,
-        'mg/L'
-        )
-        answer = np.round(answer,5)
-        self.assertEqual(
-        answer,
+        path = os.path.join(os.path.dirname(__file__), '.', 'data', 'Lab5Part2(CMFR_Final).xls')
+        answer = Column_of_data(path, 50, 1, -1, 'mg/L')
+        answer = np.round(answer, 5)
+        self.assertSequenceEqual(
+        answer.tolist(),
         np.round(np.array([ 21.61681747,  21.31163216,  20.80215263,  20.46752739,
         20.1048584 ,  19.7037487 ,  19.4194355 ,  18.95934677,
         18.65832138,  18.24054337,  17.93864632,  17.591259  ,
@@ -112,33 +97,19 @@ class TestUtils(unittest.TestCase):
          2.42190933,   2.36228228,   2.30094266,   2.24602866,
          2.19216943,   2.14143515,   2.10641694,   2.07170939,
          2.04412961,   2.0158174 ,   2.00059986,   1.98546684,
-         1.97646523,   1.96455812,   1.95887971])*u('mg/L'),5)
+         1.97646523,   1.96455812,   1.95887971])*u('mg/L'), 5).tolist()
         )
 
     def test_file_notes_function(self):
         '''''
         Test function that extracts meta information from data file.
         '''''
-        answer = notes('Lab5Part2(CMFR_Final).xls')['Day fraction since midnight on ']
+        path = os.path.join(os.path.dirname(__file__), '.', 'data', 'Lab5Part2(CMFR_Final).xls')
+        answer = notes(path)['Day fraction since midnight on ']
         x = pd.DataFrame(index=[1,29,35],columns=['Day fraction since midnight on ', 'red dye (mg/L)', 'Run Pump ()', 'Pump ()'])
         x.iloc[0][0]='Start'
         x.iloc[1][0]='Start'
         x.iloc[2][0]='30 mg/L'
-        self.assertEqual(
-        answer,
-        x['Day fraction since midnight on ']
-        )
-
-    def test_Hplus_concentration_from_pH(self):
-        '''''
-        Test function that converts pH to molarity of H+
-        '''''
-        answer = invph(
-        8.25
-        )
-        self.assertEqual(
-        answer,
-        5.623413251903491e-09*u.mol/u.L
-        )
-
-    def
+        self.assertSequenceEqual(
+        answer.tolist(),
+        x['Day fraction since midnight on '].tolist())
