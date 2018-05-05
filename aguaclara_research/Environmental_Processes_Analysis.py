@@ -1,4 +1,8 @@
-from aguaclara_research.play import *
+from aide_design.units import unit_registry as u
+import scipy
+from scipy import special
+from scipy.optimize import curve_fit
+import collections
 
 
 # Carbonates
