@@ -3,7 +3,6 @@ tests for the aguaclara_research package's ProCoDA parsing functions
 """
 
 import unittest
-import os
 from aguaclara_research.ProCoDA_Parser import *
 
 class TestProCoDAParser(unittest.TestCase):
@@ -162,3 +161,74 @@ class TestProCoDAParser(unittest.TestCase):
         data.tolist()[1000:1100],
         [5.4209375*u.mL/u.s for number in range(100)]
         )
+
+    def test_average_state(self):
+        path = os.path.join(os.path.dirname(__file__), '.', 'data', '')
+        avgs = average_state(["6-19-2013", "6-20-2013"], 1, 28, "mL/s", path)
+        avgs = np.round(avgs, 5)
+        self.assertSequenceEqual(
+        avgs.tolist(),
+        [5.5, 5.5, 5.5, 5.43125, 5.42094, 5.40908, 5.39544, 5.37976, 5.36172,
+        5.34098, 5.31712, 5.28969, 5.5, 5.5, 5.5]*u.mL/u.s
+        )
+
+    def test_perform_function_on_state(self):
+        path = os.path.join(os.path.dirname(__file__), '.', 'data', '')
+
+        def avg_with_units(lst):
+            num = np.size(lst)
+            acc = 0
+            for i in lst:
+                acc = i + acc
+
+            return acc / num
+
+        avgs = perform_function_on_state(avg_with_units, ["6-19-2013", "6-20-2013"], 1, 28, "mL/s", path)
+        avgs = np.round(avgs, 5)
+        self.assertSequenceEqual(
+        avgs.tolist(),
+        [5.5, 5.5, 5.5, 5.43125, 5.42094, 5.40908, 5.39544, 5.37976, 5.36172,
+        5.34098, 5.31712, 5.28969, 5.5, 5.5, 5.5]*u.mL/u.s
+        )
+
+    def test_plot_state(self):
+        path = os.path.join(os.path.dirname(__file__), '.', 'data', '')
+
+        # make sure an error isn't raised since output of plot can't be tested
+        plot_state(["6-19-2013", "6-20-2013"], 1, 28, path)
+
+    def test_read_state_with_metafile(self):
+        path = os.path.join(os.path.dirname(__file__), '.', 'data', 'Test Meta File.txt')
+
+        def avg_with_units(lst):
+            num = np.size(lst)
+            acc = 0
+            for i in lst:
+                acc = i + acc
+
+            return acc / num
+
+        ids, answer = read_state_with_metafile(avg_with_units, 1, 28, path, [], ".xls", "mg/L")
+
+        self.assertSequenceEqual(["1", "2"], ids.tolist())
+        self.assertSequenceEqual([5.445427082723495, 5.459751965314751]*u.mg/u.L, answer)
+
+    def test_write_calculations_to_csv(self):
+        path = os.path.join(os.path.dirname(__file__), '.', 'data', 'Test Meta File.txt')
+        out_path = os.path.join(os.path.dirname(__file__), '.', 'data', 'test_output.txt')
+
+        def avg_with_units(lst):
+            num = np.size(lst)
+            acc = 0
+            for i in lst:
+                acc = i + acc
+
+            return acc / num
+
+        output = write_calculations_to_csv(avg_with_units, 1, 28, path,
+                                           ["Average Conc (mg/L)"], out_path)
+
+        self.assertSequenceEqual(["1", "2"], output['ID'].tolist())
+        self.assertSequenceEqual(
+        [5.445427082723495, 5.459751965314751],
+        output['Average Conc (mg/L)'].tolist())

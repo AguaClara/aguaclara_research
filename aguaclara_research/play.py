@@ -19,6 +19,7 @@ And your numbers should be limited to four significant figures  when printed.
 """
 
 # AIDE imports
+# pandas, numpy, matplotlib, math, and AIDE specific packages (like constants)
 from aide_design.play import *
 import aguaclara_research.ProCoDA_Parser as pro
 import aguaclara_research.Environmental_Processes_Analysis as epa
