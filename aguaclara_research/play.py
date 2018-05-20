@@ -26,6 +26,7 @@ import collections
 from datetime import datetime, timedelta
 
 # AIDE imports
+# pandas, numpy, matplotlib, math, and AIDE specific packages (like constants)
 from aide_design.play import *
 
 def setup_aguaclara():

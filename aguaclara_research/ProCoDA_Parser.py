@@ -1,4 +1,10 @@
-from aguaclara_research.play import *
+from aide_design.shared.units import unit_registry as u
+from datetime import datetime, timedelta
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+from pathlib import Path
 
 
 def ftime(data_file_path, start, end=-1):
@@ -109,12 +115,6 @@ def notes(data_file_path):
     text_row_index = text_row.index[text_row].tolist()
     notes = df.loc[text_row_index]
     return notes
-
-dates = ["6-19-2013", "6-20-2013"]
-state = "1"
-column = 28
-units = "mL/s"
-path = '../tests/data/'
 
 def read_state(dates, state, column, units="", path="", extension=".xls"):
     """Reads a ProCoDA file and outputs the data column and time vector for
@@ -474,11 +474,14 @@ def perform_function_on_state(func, dates, state, column, units="", path="", ext
     output = np.zeros(np.size(data_agg))
     for i in range(np.size(data_agg)):
         if units != "":
-            output[i] = func(data_agg[i]*u(units))
+            output[i] = func(data_agg[i]*u(units)).magnitude
         else:
             output[i] = func(data_agg[i])
 
-    return output
+    if units != "":
+        return output*func(data_agg[i]*u(units)).units
+    else:
+        return output
 
 
 def plot_state(dates, state, column, path="", extension=".xls"):
@@ -619,13 +622,13 @@ def read_state_with_metafile(func, state, column, path, metaids=[],
     metaids : string list, optional
         a list of the experiment IDs you'd like to analyze from the metafile
 
-    units : string, optional
-        The units you want to apply to the data, e.g. 'mg/L'.
-        Defaults to "" which indicates no units
-
     extension : string, optional
         The file extension of the tab delimited file. Defaults to ".xls" if
         no argument is passed in
+
+    units : string, optional
+        The units you want to apply to the data, e.g. 'mg/L'.
+        Defaults to "" which indicates no units
 
     Returns
     -------
@@ -645,7 +648,8 @@ def read_state_with_metafile(func, state, column, path, metaids=[],
 
         return acc / num
 
-    read_state_with_metafile(avg_with_units, "")
+    path = "../tests/data/Test Meta File.txt"
+    ids, answer = read_state_with_metafile(avg_with_units, 1, 28, path, [], ".xls", "mg/L")
 
     """
     outputs = []
@@ -655,15 +659,18 @@ def read_state_with_metafile(func, state, column, path, metaids=[],
 
     ids = metafile[1:, 0]
 
-    if not metaids:
+    if not isinstance(ids[0], str):
+        ids = list(map(str, ids))
+
+    if metaids:
         paths = []
         for i in range(len(ids)):
-            if ids[i] in meta_ids:
+            if ids[i] in metaids:
                 paths.append(metafile[i, 4])
     else:
-        paths = metafile[1:-1, 4]
+        paths = metafile[1:, 4]
 
-    basepath = metafile[0, 4]
+    basepath = os.path.join(os.path.split(path)[0], metafile[0, 4])
 
     # use a loop to evaluate each experiment in the metafile
     for i in range(len(paths)):
@@ -671,13 +678,19 @@ def read_state_with_metafile(func, state, column, path, metaids=[],
         day1 = metafile[i+1, 1]
 
         # modify the metafile date so that it works with datetime format
-        if day1[2] != "-":
+        if not (day1[2] == "-" or day1[2] == "/"):
             day1 = "0" + day1
-        if day1[5] != "-":
+        if not (day1[5] == "-" or day1[5] == "/"):
             day1 = day1[:3] + "0" + day1[3:]
 
-        dt = datetime.strptime(day1, "%m-%d-%Y")
+        if day1[2] == "-":
+            dt = datetime.strptime(day1, "%m-%d-%Y")
+        else:
+            dt = datetime.strptime(day1, "%m/%d/%y")
         duration = metafile[i+1, 3]
+
+        if not isinstance(duration, int):
+            duration = int(duration)
 
         date_list = []
         for j in range(duration):
@@ -691,8 +704,8 @@ def read_state_with_metafile(func, state, column, path, metaids=[],
 
             dt = dt + timedelta(days=1)
 
-        _, data = read_state(date_list, state, column, units,
-                             basepath + paths, extension)
+        path = str(Path(os.path.join(basepath, paths[i]))) + os.sep
+        _, data = read_state(date_list, state, column, units, path, extension)
 
         outputs.append(func(data))
 
@@ -757,15 +770,16 @@ def write_calculations_to_csv(funcs, states, columns, path, headers, out_name,
     Examples
     --------
 
+
     """
     if not isinstance(funcs, list):
-        [funcs] * len(headers)
+        funcs = [funcs] * len(headers)
 
     if not isinstance(states, list):
-        [states] * len(headers)
+        states = [states] * len(headers)
 
     if not isinstance(columns, list):
-        [columns] * len(headers)
+        columns = [columns] * len(headers)
 
     data_agg = []
     for i in range(len(headers)):
@@ -773,8 +787,8 @@ def write_calculations_to_csv(funcs, states, columns, path, headers, out_name,
                                              path, metaids, extension)
         data_agg = np.append(data_agg, [data])
 
-    output = pd.DataFrame(data=(data_agg.T).insert(0, ids),
-                          columns=["IDs"]+headers)
+    output = pd.DataFrame(data=np.vstack((ids, data_agg)).T,
+                          columns=["ID"]+headers)
     output.to_csv(out_name, sep='\t')
 
     return output
