@@ -1,4 +1,4 @@
-"""This module is intended to provide easy set up for an aide design playground
+"""This module is intended to provide easy set up for an aguaclara playground
 /environment.
 
 It imports all commonly used aide packages with one line, ensures Python is
@@ -18,16 +18,12 @@ And your numbers should be limited to four significant figures  when printed.
 
 """
 
-# Third-party imports
-import scipy
-from scipy import special
-from scipy.optimize import curve_fit
-import collections
-from datetime import datetime, timedelta
-
 # AIDE imports
 # pandas, numpy, matplotlib, math, and AIDE specific packages (like constants)
 from aide_design.play import *
+import aguaclara_research.ProCoDA_Parser as pro
+import aguaclara_research.Environmental_Processes_Analysis as epa
+import aguaclara_research.floc_model as floc_mod
 
 def setup_aguaclara():
     """
