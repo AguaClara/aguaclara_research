@@ -241,7 +241,7 @@ def V_super_stock(Q_plant, C, tubing_color, V_stock, C_super_stock):
     return (V_stock * C_stock / C_super_stock).to(u.mL)
 
 
-def Q_water(Q_plant, C_clay, C_pacl_max, tubing_clay, tubing_pacl):
+def Q_water(Q_plant, C_clay, C_pacl_min, tubing_clay, tubing_pacl):
     """This function calculates the required flow rate for water from the tap
     for the experiment.
 
@@ -254,7 +254,7 @@ def Q_water(Q_plant, C_clay, C_pacl_max, tubing_clay, tubing_pacl):
         concentration of clay to be added, i.e. the desired influent turbidity
 
     C_pacl_max : float
-        maximum coagulant dose of the mixed water in the flocculator
+        minimum coagulant dose of the mixed water in the flocculator
 
     tubing_clay
         color of the tubing to be used for the clay stock

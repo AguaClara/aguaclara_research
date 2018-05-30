@@ -14,26 +14,161 @@ K2_carbonate = 10**(-10.25)*u.mol/u.L
 K_Henry_CO2 = 10**(-1.5) * u.mole/(u.L*u.atm)
 P_CO2 = 10**(-3.5) * u.atm
 
+
 def invpH(pH):
+    """This function calculates inverse pH
+
+    Parameters
+    ----------
+    pH : float
+        pH to be inverted
+
+    Returns
+    -------
+    The inverse pH (in moles per liter) of the given pH
+
+    Examples
+    --------
+    >>> invpH(8.25)
+    5.623413251903491e-09 mole/liter
+    >>> invpH(10)
+    1e-10 mole/liter
+
+    """
     return 10**(-pH)*u.mol/u.L
 
+
 def alpha0_carbonate(pH):
-    alpha0_carbonate = 1/(1+(K1_carbonate/invpH(pH))*(1+(K2_carbonate/invpH(pH))))
+    """This function calculates the fraction of total carbonates of the form
+    H2CO3
+
+    Parameters
+    ----------
+    pH : float
+        pH of the system
+
+    Returns
+    -------
+    fraction of CT in the form H2CO3
+
+    Examples
+    --------
+    >>> alpha0_carbonate(8.25)
+    0.01288388583402879 dimensionless
+    >>> alpha0_carbonate(10)
+    0.00015002337123256595 dimensionless
+
+    """
+    alpha0_carbonate = 1/(1+(K1_carbonate/invpH(pH)) *
+                            (1+(K2_carbonate/invpH(pH))))
     return alpha0_carbonate
 
+
 def alpha1_carbonate(pH):
-    alpha1_carbonate = 1/((invpH(pH)/K1_carbonate) + 1 + (K2_carbonate/invpH(pH)))
+    """This function calculates the fraction of total carbonates of the form
+    HCO3-
+
+    Parameters
+    ----------
+    pH : float
+        pH of the system
+
+    Returns
+    -------
+    fraction of CT in the form HCO3-
+
+    Examples
+    --------
+    >>> alpha1_carbonate(8.25)
+    0.9773426872930407 dimensionless
+    >>> alpha1_carbonate(10)
+    0.6399689750938067 dimensionless
+
+    """
+    alpha1_carbonate = 1/((invpH(pH)/K1_carbonate) + 1 +
+                          (K2_carbonate/invpH(pH)))
     return alpha1_carbonate
 
+
 def alpha2_carbonate(pH):
-    alpha2_carbonate = 1/(1+(invpH(pH)/K2_carbonate)*(1+(invpH(pH)/K1_carbonate)))
+    """This function calculates the fraction of total carbonates of the form
+    CO3-2
+
+    Parameters
+    ----------
+    pH : float
+        pH of the system
+
+    Returns
+    -------
+    fraction of CT in the form CO3-2
+
+    Examples
+    --------
+    >>> alpha2_carbonate(8.25)
+    0.009773426872930407 dimensionless
+    >>> alpha2_carbonate(10)
+    0.35988100153496067 dimensionless
+
+    """
+    alpha2_carbonate = 1/(1+(invpH(pH)/K2_carbonate) *
+                            (1+(invpH(pH)/K1_carbonate)))
     return alpha2_carbonate
 
-def ANC_closed(pH,Total_Carbonates):
-    return Total_Carbonates*(alpha1_carbonate(pH)+2*alpha2_carbonate(pH)) + Kw/invpH(pH) - invpH(pH)
+
+def ANC_closed(pH, Total_Carbonates):
+    """Acid neutralizing capacity (ANC) calculated under a closed system where
+    there are no carbonates exchanged with the atmosphere during the
+    experiment. Based on pH and total carbonates in the system.
+
+    Parameters
+    ----------
+    pH : float
+        pH of the system
+
+    Total_Carbonates
+        total carbonates in the system (mole/L)
+
+    Returns
+    -------
+    The acid neutralizing capacity of the closed system (eq/L)
+
+    Examples
+    --------
+    >>> ANC_closed(8.25, 1*u.mol/u.L)
+    0.9968913136948984 equivalents/liter
+    >>> ANC_closed(10, 1*u.mol/u.L)
+    1.359830978063728 equivalents/liter
+
+    """
+    return (Total_Carbonates * (u.eq/u.mol * alpha1_carbonate(pH) +
+            2 * u.eq/u.mol * alpha2_carbonate(pH)) +
+            1 * u.eq/u.mol * Kw/invpH(pH) - 1 * u.eq/u.mol * invpH(pH))
+
 
 def ANC_open(pH):
-    return ANC_closed(pH,P_CO2*K_Henry_CO2/alpha0_carbonate(pH))
+    """Acid neutralizing capacity (ANC) calculated under an open system, based
+    on pH.
+
+    Parameters
+    ----------
+    pH : float
+        pH of the system
+
+    Returns
+    -------
+    The acid neutralizing capacity of the closed system (eq/L)
+
+    Examples
+    --------
+    >>> ANC_open(8.25)
+    0.0007755217825265541 equivalents/liter
+    >>> ANC_open(10)
+    0.09073461016054905 equivalents/liter
+
+    """
+    return ANC_closed(pH, P_CO2*K_Henry_CO2/alpha0_carbonate(pH))
+
 
 def aeration_data(DO_column, dirpath):
     """This function extracts the data from folder containing tab delimited
@@ -47,7 +182,8 @@ def aeration_data(DO_column, dirpath):
     Parameters
     ----------
     DO_column : int
-        index of the column that contains the dissolved oxygen concentration data.
+        index of the column that contains the dissolved oxygen concentration
+        data.
 
     dirpath : string
         path to the directory containing aeration data you want to analyze
@@ -89,6 +225,7 @@ def aeration_data(DO_column, dirpath):
     aeration_results = aeration_collection(filepaths, airflows, DO_data, time_data)
     return aeration_results
 
+
 def O2_sat(P_air, temp):
     """This equation returns saturaed oxygen concentration in mg/L. It is valid
     for 278 K < T < 318 K
@@ -106,12 +243,14 @@ def O2_sat(P_air, temp):
 
     Examples
     --------
+    >>> 
 
     """
     fraction_O2 = 0.21
     P_O2 = P_air * fraction_O2
     return ((P_O2.to(u.atm).magnitude) *
             u.mg/u.L*np.exp(1727 / temp.to(u.K).magnitude - 2.105))
+
 
 def Gran(data_file_path):
     """This function extracts the data from a ProCoDA Gran plot file.
@@ -161,6 +300,7 @@ def Gran(data_file_path):
                            ANC=ANC_sample)
     return Gran
 
+
 # Reactors
 # The following code is for reactor responses to tracer inputs.
 def CMFR(t, C_initial, C_influent):
@@ -190,6 +330,7 @@ def CMFR(t, C_initial, C_influent):
     """
     return C_influent * (1-np.exp(-t)) + C_initial*np.exp(-t)
 
+
 def E_CMFR_N(t, N):
     """This function calculates a dimensionless measure of the output tracer
     concentration from a spike input to a series of completely mixed flow
@@ -216,6 +357,7 @@ def E_CMFR_N(t, N):
 
     """
     return (N**N)/special.gamma(N) * (t**(N-1))*np.exp(-N*t)
+
 
 def E_Advective_Dispersion(t, Pe):
     """This function calculates a dimensionless measure of the output tracer
