@@ -598,8 +598,7 @@ def g_coil(FlowPlant, IDTube, RadiusCoil, Temp):
     """
     return (g_straight(FlowPlant, IDTube).magnitude
             * (1 + 0.033 *
-                np.log10(dean_number(FlowPlant, IDTube, RadiusCoil, Temp)
-                        ) ** 4
+                np.log10(dean_number(FlowPlant, IDTube, RadiusCoil, Temp)) ** 4
                ) ** (1/2)
             )
 

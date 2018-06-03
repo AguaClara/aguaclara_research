@@ -24,6 +24,7 @@ from aide_design.play import *
 import aguaclara_research.ProCoDA_Parser as pro
 import aguaclara_research.Environmental_Processes_Analysis as epa
 import aguaclara_research.floc_model as floc_mod
+import aguaclara_research.tube_sizing as tube
 
 def setup_aguaclara():
     """

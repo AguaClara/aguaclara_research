@@ -243,7 +243,8 @@ def O2_sat(P_air, temp):
 
     Examples
     --------
-    >>> 
+    >>> O2_sat(1*u.atm , 300*u.kelvin)
+    8.093157231428425 milligram/liter
 
     """
     fraction_O2 = 0.21
