@@ -30,7 +30,7 @@ def ftime(data_file_path, start, end=-1):
 
     Examples
     --------
-
+    ftime(Reactor_data.txt, 0)
 
     """
     if not isinstance(start, int):
@@ -79,6 +79,7 @@ def column_of_data(data_file_path, start, column, end="-1", units=""):
 
     Examples
     --------
+    column_of_data(Reactor_data.txt, 0, 1, -1, "mg/L")
 
     """
     if not isinstance(start, int):
@@ -125,6 +126,7 @@ def notes(data_file_path):
     text_row_index = text_row.index[text_row].tolist()
     notes = df.loc[text_row_index]
     return notes
+
 
 def read_state(dates, state, column, units="", path="", extension=".xls"):
     """Reads a ProCoDA file and outputs the data column and time vector for
