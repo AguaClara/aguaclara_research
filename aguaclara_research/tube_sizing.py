@@ -253,7 +253,7 @@ def Q_water(Q_plant, C_clay, C_pacl_min, tubing_clay, tubing_pacl):
     C_clay : float
         concentration of clay to be added, i.e. the desired influent turbidity
 
-    C_pacl_max : float
+    C_pacl_min : float
         minimum coagulant dose of the mixed water in the flocculator
 
     tubing_clay
@@ -275,7 +275,7 @@ def Q_water(Q_plant, C_clay, C_pacl_min, tubing_clay, tubing_pacl):
 
     """
     return (Q_plant - Q_stock_max(Q_plant, C_clay, tubing_clay) -
-            Q_stock_max(Q_plant, C_pacl_max, tubing_pacl)).to(u.mL/u.min)
+            Q_stock_max(Q_plant, C_pacl_min, tubing_pacl)).to(u.mL/u.min)
 
 
 def pump_rpm(Q, tubing_color):
