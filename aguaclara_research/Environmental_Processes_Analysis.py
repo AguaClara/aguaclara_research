@@ -243,7 +243,8 @@ def O2_sat(P_air, temp):
 
     Examples
     --------
-    >>> 
+    >>> O2_sat(1*u.atm , 300*u.kelvin)
+    8.093157231428425 milligram/liter
 
     """
     fraction_O2 = 0.21
@@ -326,6 +327,10 @@ def CMFR(t, C_initial, C_influent):
 
     Examples
     --------
+    >>> CMFR(0.1, 0*u.mg/u.L, 10*u.mg/u.L)
+    0.9516258196404048 milligram/liter
+    >>> CMFR(0.9, 5*u.mg/u.L, 10*u.mg/u.L)
+    7.967151701297004 milligram/liter
 
     """
     return C_influent * (1-np.exp(-t)) + C_initial*np.exp(-t)
@@ -354,6 +359,10 @@ def E_CMFR_N(t, N):
 
     Examples
     --------
+    >>> E_CMFR_N(0.5, 3)
+    0.7530642905009506
+    >>> E_CMFR_N(0.1, 1)
+    0.9048374180359595
 
     """
     return (N**N)/special.gamma(N) * (t**(N-1))*np.exp(-N*t)
@@ -380,11 +389,14 @@ def E_Advective_Dispersion(t, Pe):
 
     Examples
     --------
+    >>> E_Advective_Dispersion(0.5, 5)
+    0.47748641153355664
 
     """
     # replace any times at zero with a number VERY close to zero to avoid
     # divide by zero errors
-    t[t == 0] = 10**(-50)
+    if isinstance(t, list):
+        t[t == 0] = 10**(-50)
     return (Pe/(4*np.pi*t))**(0.5)*np.exp((-Pe*((1-t)**2))/(4*t))
 
 
@@ -396,14 +408,14 @@ def Tracer_CMFR_N(t_seconds, t_bar, C_bar, N):
     Parameters
     ----------
     t_seconds : float list
-        Array of times (units of seconds, but unitless)
+        Array of times
 
     t_bar : float
-        Average time spent in the reactor (units of seconds, but unitless).
+        Average time spent in the reactor
 
     C_bar : float
         Average concentration.
-        (Mass of tracer)/(volume of the reactor), but unitless.
+        (Mass of tracer)/(volume of the reactor)
 
     N : float
         number of completely mixed flow reactors (CMFRS) in series.
@@ -413,10 +425,13 @@ def Tracer_CMFR_N(t_seconds, t_bar, C_bar, N):
     -------
     float list
         The model concentration as a function of time
-        (C_bar*E_CMFR_N(t_seconds/t_bar, N))
+
+    Examples
+    --------
+    >>> Tracer_CMFR_N([1, 2, 3, 4, 5]*u.s, 5*u.s, 10*u.mg/u.L, 3)
+    \\[\\begin{pmatrix}2.963582834907743 & 6.505794977303565 & 8.033525967569107 & 7.838031164205239 & 6.721254229661633\\end{pmatrix} milligram/liter\\]
 
     """
-
     return C_bar*E_CMFR_N(t_seconds/t_bar, N)
 
 
@@ -452,7 +467,6 @@ def Solver_CMFR_N(t_data, C_data, theta_guess, C_bar_guess):
             number of CMFRS in series that best fit the data
 
     """
-
     C_unitless = C_data.magnitude
     C_units = str(C_bar_guess.units)
     t_seconds = (t_data.to(u.s)).magnitude
@@ -475,14 +489,14 @@ def Tracer_AD_Pe(t_seconds, t_bar, C_bar, Pe):
     Parameters
     ----------
     t_seconds : float list
-        Array of times (units of seconds, but unitless)
+        Array of times
 
     t_bar : float
-        Average time spent in the reactor (units of seconds, but unitless).
+        Average time spent in the reactor
 
     C_bar : float
         Average concentration.
-        (Mass of tracer)/(volume of the reactor), but unitless.
+        (Mass of tracer)/(volume of the reactor)
 
     Pe : float
         The Peclet number for the reactor.
@@ -494,9 +508,10 @@ def Tracer_AD_Pe(t_seconds, t_bar, C_bar, Pe):
 
     Examples
     --------
+    >>> Tracer_AD_Pe([1, 2, 3, 4, 5]*u.s, 5*u.s, 10*u.mg/u.L, 5)
+    \\[\\begin{pmatrix}0.2583373169261504 & 3.237939891647294 & 5.834983303390744 & 6.625088308600714 & 6.307831305050401\\end{pmatrix} milligram/liter\\]
 
     """
-
     return C_bar*E_Advective_Dispersion(t_seconds/t_bar, Pe)
 
 
@@ -530,9 +545,6 @@ def Solver_AD_Pe(t_data, C_data, theta_guess, C_bar_guess):
 
         Pe : float
             peclet number that best fits the data
-
-    Examples
-    --------
 
     """
 

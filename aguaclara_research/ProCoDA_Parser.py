@@ -16,10 +16,10 @@ def ftime(data_file_path, start, end=-1):
         File path. If the file is in the working directory, then the file name
         is sufficient.
 
-    start : int
+    start : int or float
         Index of first row of data to extract from the data file
 
-    end : int, optional
+    end : int or float, optional
         Index of last row of data to extract from the data
         Defaults to -1, which extracts all the data in the file
 
@@ -30,9 +30,14 @@ def ftime(data_file_path, start, end=-1):
 
     Examples
     --------
-
+    ftime(Reactor_data.txt, 0)
 
     """
+    if not isinstance(start, int):
+        start = int(start)
+    if not isinstance(end, int):
+        end = int(end)
+
     df = pd.read_csv(data_file_path, delimiter='\t')
     start_time = pd.to_numeric(df.iloc[start, 0])*u.day
     day_times = pd.to_numeric(df.iloc[start:end, 0])
@@ -74,8 +79,14 @@ def column_of_data(data_file_path, start, column, end="-1", units=""):
 
     Examples
     --------
+    column_of_data(Reactor_data.txt, 0, 1, -1, "mg/L")
 
     """
+    if not isinstance(start, int):
+        start = int(start)
+    if not isinstance(end, int):
+        end = int(end)
+
     df = pd.read_csv(data_file_path, delimiter='\t')
     if units == "":
         if isinstance(column, int):
@@ -115,6 +126,7 @@ def notes(data_file_path):
     text_row_index = text_row.index[text_row].tolist()
     notes = df.loc[text_row_index]
     return notes
+
 
 def read_state(dates, state, column, units="", path="", extension=".xls"):
     """Reads a ProCoDA file and outputs the data column and time vector for
