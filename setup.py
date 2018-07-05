@@ -66,5 +66,5 @@ setup(
     ],
     include_package_data=True,
     url='https://github.com/AguaClara/aguaclara_research',
-    version='1.0.5'
+    version='1.0.6'
 )
