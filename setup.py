@@ -64,6 +64,7 @@ setup(
         'tox>=2.3.1,<3.0.0',
         'virtualenv>=15.0.1,<16.0.0'
     ],
+    include_package_data=True,
     url='https://github.com/AguaClara/aguaclara_research',
     version='1.0.4'
 )
