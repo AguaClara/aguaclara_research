@@ -1,24 +1,18 @@
 language: python
-env:
-  - TOXENV=py32
-  - TOXENV=py33
-  - TOXENV=py34
-  - TOXENV=py35
-  - TOXENV=pypy
-  - TOXENV=lint
+sudo: false
+python:
+- '3.6'
 install:
-  - pip install -r requirements-dev.txt
-matrix:
-  fast_finish: true
+- pip install -r requirements-dev.txt
 script:
-  - python setup.py test
+- pytest --cov=./
+deploy:
+  provider: pypi
+  user: $PYPI_USERNAME
+  password: $PYPI_PASSWORD
+  on:
+    tags: true
+    branch: master
+  distributions: sdist
 after_success:
-  - curl -Lo travis_after_all.py https://git.io/travis_after_all
-  - python travis_after_all.py
-  - export $(cat .to_export_back)
-  - |
-      if [ "$BUILD_LEADER" = "YES" ]; then
-        if [ "$BUILD_AGGREGATE_STATUS" = "others_succeeded" ]; then
-          python setup.py coverage && codecov
-        fi
-      fi
+- codecov
