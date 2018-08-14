@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 aide-design = "*"
+pytest-cov = "*"
 
 [dev-packages]
 pytest = "*"
