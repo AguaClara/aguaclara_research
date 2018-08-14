@@ -1,11 +1,12 @@
 language: python
 sudo: false
 python:
-- '3.6'
+- '3.5'
 install:
-- pip install -r requirements-dev.txt
+- pip install pipenv
+- pipenv install --dev
 script:
-- pytest --cov=./
+- pipenv run pytest --cov=./
 deploy:
   provider: pypi
   user: $PYPI_USERNAME
@@ -15,4 +16,4 @@ deploy:
     branch: master
   distributions: sdist
 after_success:
-- codecov
+- pipenv run codecov
