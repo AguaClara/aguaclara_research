@@ -1,11 +1,11 @@
 """This module is intended to provide easy set up for an aguaclara playground
 /environment.
 
-It imports all commonly used aide packages with one line, ensures Python is
-run in the correct virtual environment, sets sig figs correctly and provides
-any additional environment massaging to get to designing as quickly as
-possible. This should NOT be used by other modules within aide_design as it
-results in unnecessary imports.
+It imports all commonly used aguaclara_research packages with one line, ensures
+Python is run in the correct virtual environment, sets sig figs correctly and
+provides any additional environment massaging to get to designing as quickly as
+possible. This should NOT be used by other modules within aguaclara_research as
+it results in unnecessary imports.
 
 Usage:
 
@@ -23,7 +23,7 @@ And your numbers should be limited to four significant figures  when printed.
 from aide_design.play import *
 import aguaclara_research.ProCoDA_Parser as pro
 import aguaclara_research.Environmental_Processes_Analysis as epa
-import aguaclara_research.floc_model as floc_mod
+# import aguaclara_research.floc_model as floc_mod
 import aguaclara_research.tube_sizing as tube
 
 def setup_aguaclara():

@@ -1,4 +1,4 @@
-from aide_design.shared.units import unit_registry as u
+from aguaclara_research.units import unit_registry as u
 from scipy import special
 from scipy.optimize import curve_fit
 import collections

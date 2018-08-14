@@ -1,4 +1,4 @@
-from aide_design.shared.units import unit_registry as u
+from aguaclara_research.units import unit_registry as u
 import numpy as np
 import pandas as pd
 
@@ -70,7 +70,7 @@ def ID_colored_tube(color):
     2.79 millimeter
 
     """
-    df = pd.read_csv("tubing_data.txt", delimiter='\t')
+    df = pd.read_csv("/data/tubing_data.txt", delimiter='\t')
     idx = df["Color"] == color
     return df[idx]['Diameter (mm)'].values[0] * u.mm
 
